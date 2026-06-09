@@ -134,6 +134,7 @@ function render() {
     'pos-map': renderPosMap,
     'conjprep-map': renderConjPrepMap,
     'paraphrase-map': renderParaphraseMap,
+    'reading-map': renderReadingMap,
     course: renderCourse,
     guide: renderGuide,
   };
@@ -196,6 +197,7 @@ function renderHome() {
 
       <div class="section-label">学習サポート</div>
       <div class="menu-stack">
+        <button class="menu-btn full" data-action="go-reading-map"><span class="menu-btn-icon">🗺️</span><span class="menu-btn-label">Reading Map（弱点マップ）</span><span class="menu-btn-sub">700→800に必要な読解観点と弱点</span></button>
         <button class="menu-btn full" data-action="go-course"><span class="menu-btn-icon">📘</span><span class="menu-btn-label">7日間Readingコース</span><span class="menu-btn-sub">何から始めるか迷わない導線</span></button>
         <button class="menu-btn full" data-action="go-pos-map"><span class="menu-btn-icon">🔤</span><span class="menu-btn-label">品詞マップ</span><span class="menu-btn-sub">語尾と位置で品詞を見抜く</span></button>
         <button class="menu-btn full" data-action="go-conjprep-map"><span class="menu-btn-icon">🔗</span><span class="menu-btn-label">接続詞・前置詞マップ</span><span class="menu-btn-sub">後ろがSVか名詞かで整理</span></button>
@@ -409,6 +411,63 @@ function mapScreen(title, intro, data) {
   return `<div class="screen">${headerBar(title)}<div class="body-pad"><div class="intro-line">${escapeHTML(intro)}</div>${cards}</div></div>`;
 }
 
+// ── Reading Map（弱点マップ） ──────────────────────────────────────────
+// 700→800 の読解観点を、各問の skill とゆるく対応づけて学習状況・弱点を表示する。
+// localStorage 構造は変更しない（既存の DB.answered / DB.wrong を読むだけ）。
+function renderReadingMap() {
+  // 観点 → skill に含まれるキーワード（部分一致）
+  const views = [
+    { tag: 'Vocabulary in Context', title: '文脈語彙力', desc: '空所や本文に合う語を、意味とコロケーションで選ぶ力。', keys: ['語彙', 'ビジネス動詞', 'ビジネス名詞', '形容詞', '副詞', 'コロケーション', '文脈語彙', '文脈動詞', '文脈名詞', '紛らわしい', '句動詞', '数量', '前置詞'] },
+    { tag: 'Connector', title: '接続・論理の流れ', desc: '接続詞・接続副詞で文と文のつながり（順接・逆接・因果）をつかむ。', keys: ['接続', '相関接続', '対比'] },
+    { tag: 'Grammar Accuracy', title: '文法の正確さ', desc: '時制・態・分詞・関係詞・比較・仮定法などを素早く正確に判断する。', keys: ['時制', '完了形', '受動態', '分詞', '関係詞', '比較', '仮定法', '品詞', '倒置', '一致', '語法'] },
+    { tag: 'Part 6 Flow', title: 'Part 6 文脈・文選択', desc: '空所を1文だけでなく前後の流れで判断し、最適な一文を選ぶ。', keys: ['文挿入', '指示語', '代名詞', 'Part 6'] },
+    { tag: 'Purpose', title: 'Part 7 目的・主旨', desc: '文書全体が何のために書かれたかをつかむ。', keys: ['目的把握'] },
+    { tag: 'Detail', title: 'Part 7 詳細・依頼', desc: '日時・条件・依頼など、本文の具体情報を正確に読み取る。', keys: ['詳細把握', '依頼内容把握', '理由・原因把握'] },
+    { tag: 'Paraphrase', title: '言い換え対応', desc: '正解選択肢は本文の言い換え。同義表現を見抜く。', keys: ['言い換え', '同義表現'] },
+    { tag: 'Inference', title: '推論', desc: '本文に直接書かれていない含意を、根拠から論理的に推測する。', keys: ['推論', '含意', '推測'] },
+  ];
+
+  const matched = q => views.find(v => v.keys.some(k => (q.skill || '').includes(k)));
+
+  const cards = views.map(v => {
+    const qs = QUESTIONS.filter(q => v.keys.some(k => (q.skill || '').includes(k)));
+    const total = qs.length;
+    const done = qs.filter(q => DB.answered[q.id]).length;
+    const weak = qs.filter(q => DB.wrong[q.id]).length;
+    const pct = total ? Math.round((done / total) * 100) : 0;
+    const weakTag = weak > 0 ? `<span style="font-size:11px;font-weight:700;color:#b91c1c;background:#fef2f2;border-radius:4px;padding:2px 7px;margin-left:6px">要復習 ${weak}問</span>` : '';
+    return `
+    <div class="card">
+      <div class="card-tag">${escapeHTML(v.tag)}</div>
+      <div class="card-title">${escapeHTML(v.title)} ${weakTag}</div>
+      <div class="card-body">${escapeHTML(v.desc)}</div>
+      <div class="bar-row" style="margin-top:8px">
+        <div class="bar-row-top"><span class="bar-row-name">学習状況</span><span class="bar-row-val">${done}/${total}問</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // どの観点にも対応づかない skill があれば把握用に（表示はしないが将来の調整に備える）
+  const intro = '700→800 の Reading は <b>Speed（速く）</b>・<b>Accuracy（正確に）</b>・<b>Paraphrase（言い換えに強く）</b>の3本柱。下の観点ごとに学習状況と「要復習」を確認し、弱い観点から復習しましょう。';
+  return `
+  <div class="screen">
+    ${headerBar('Reading Map（弱点マップ）')}
+    <div class="body-pad">
+      <div class="intro-line">${intro}</div>
+      ${cards}
+      <div class="card">
+        <div class="card-title">使い方のヒント</div>
+        <ul class="kv-list">
+          <li><b>要復習</b>が付いた観点は「間違い復習」で重点的に解き直す。</li>
+          <li>学習状況のバーが低い観点は「分野別学習」で問題数を増やす。</li>
+          <li>言い換え・推論は Part 7、接続・文選択は Part 6 で鍛えられます。</li>
+        </ul>
+      </div>
+    </div>
+  </div>`;
+}
+
 // ── 7日間Readingコース ────────────────────────────────────────────────
 function renderCourse() {
   const days = [
@@ -465,6 +524,7 @@ document.addEventListener('click', e => {
     case 'go-pos-map':       go('pos-map'); break;
     case 'go-conjprep-map':  go('conjprep-map'); break;
     case 'go-paraphrase-map':go('paraphrase-map'); break;
+    case 'go-reading-map':   go('reading-map'); break;
 
     case 'start-daily':      startQuiz('daily'); break;
     case 'start-random10':   startQuiz('random10'); break;
