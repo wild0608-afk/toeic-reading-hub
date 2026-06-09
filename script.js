@@ -151,15 +151,30 @@ function renderHome() {
   return `
   <div class="screen">
     <div class="home-top">
+      <div class="home-hero-deco" aria-hidden="true">
+        <svg viewBox="0 0 120 80" preserveAspectRatio="none">
+          <rect x="6" y="56" width="10" height="20" fill="#ffffff" opacity="0.12"/>
+          <rect x="34" y="46" width="10" height="30" fill="#ffffff" opacity="0.12"/>
+          <rect x="62" y="34" width="10" height="42" fill="#ffffff" opacity="0.14"/>
+          <rect x="90" y="20" width="10" height="56" fill="#ffffff" opacity="0.16"/>
+          <polyline points="11,54 39,44 67,32 95,18" fill="none" stroke="#ffffff" stroke-width="3" opacity="0.3"/>
+        </svg>
+      </div>
       <div class="home-brand">TOEIC READING HUB β</div>
-      <div class="home-title">Reading を、毎日少しずつ。</div>
-      <div class="home-sub">英検2級前後から TOEIC 600〜730 を目指す Reading 特化アプリ</div>
+      <div class="home-title">TOEIC 700→800<br>Reading Speed Training</div>
+      <div class="home-sub">読む速度・正確性・言い換え対応力を鍛える Reading 特化アプリ</div>
+      <div class="home-badges">
+        <span class="home-badge">⚡ Speed</span>
+        <span class="home-badge">🎯 Accuracy</span>
+        <span class="home-badge">💬 Paraphrase</span>
+      </div>
     </div>
     <div class="home-body">
       <div class="daily-hero">
+        <span class="daily-hero-target" aria-hidden="true">🎯</span>
         <div class="daily-hero-label">🌟 今日の学習</div>
         <div class="daily-hero-title">今日の5問</div>
-        <div class="daily-hero-sub">未学習を優先して5問。毎日続けて連続日数を伸ばそう。</div>
+        <div class="daily-hero-sub">Part 5〜7から毎日5問。読む速度と正確性を積み上げよう。</div>
         <button class="daily-hero-btn" data-action="start-daily">スタート</button>
       </div>
 
@@ -191,7 +206,7 @@ function renderHome() {
 
       <div class="section-label">データ</div>
       <div class="home-stats">
-        <div class="home-stat"><div class="home-stat-val">${total}</div><div class="home-stat-lbl">総問題数</div></div>
+        <div class="home-stat"><div class="home-stat-val">${total}</div><div class="home-stat-lbl">Total Questions</div></div>
         <div class="home-stat"><div class="home-stat-val">${countByPart('Part 5 Grammar') + countByPart('Part 5 Vocabulary')}</div><div class="home-stat-lbl">Part 5</div></div>
         <div class="home-stat"><div class="home-stat-val">${countByPart('Part 6 Text Completion')}/${countByPart('Part 7 Reading')}</div><div class="home-stat-lbl">Part 6 / 7</div></div>
       </div>
@@ -423,7 +438,7 @@ function renderCourse() {
 function renderGuide() {
   const cards = [
     { icon: '🚀', title: 'このアプリの使い方', kv: ['まずは「7日間Readingコース」で全体像をつかむ', '次に「分野別学習」で弱いPartを解く', '間違えた問題は「間違い復習」で戻る', '品詞は「品詞マップ」、語彙は「言い換えマップ」で確認'] },
-    { icon: '🎯', title: '対象とゴール', kv: ['対象：英検2級前後の大学生', 'ゴール：TOEIC 600〜730（Reading強化）', 'Listening は対象外（Reading特化）'] },
+    { icon: '🎯', title: '対象とゴール', kv: ['対象：TOEIC 700点台から800点突破を狙う学習者', 'ゴール：Readingの処理速度・正確性・言い換え対応力の強化', 'Listening は対象外（Reading特化）'] },
     { icon: '🧩', title: '画面の見方', kv: ['解答後に「解説・和訳・ポイント」を確認', '🔖 で付箋を付けてあとでまとめて復習', '学習記録で Part 別の進捗を確認'] },
     { icon: '⚠️', title: '注意', note: true, kv: ['本アプリは学習補助用のβ版です', '問題はすべてオリジナルで、公式問題の再現ではありません', 'スコアは目安であり、合否を保証するものではありません'] },
   ];

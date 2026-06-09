@@ -57,18 +57,40 @@ html, body {
 
 /* ── ホーム ── */
 .home-top {
-  padding: 22px 18px 18px;
-  background: linear-gradient(135deg, var(--teal) 0%, var(--teal-700) 100%);
+  position: relative;
+  overflow: hidden;
+  padding: 24px 18px 20px;
+  background: linear-gradient(135deg, #0b6b63 0%, #0d9488 58%, #0ea5a4 100%);
   color: #fff;
 }
-.home-brand { font-size: 13px; font-weight: 700; opacity: .9; letter-spacing: .04em; }
-.home-title { font-size: 22px; font-weight: 800; margin: 2px 0 4px; }
-.home-sub   { font-size: 12px; opacity: .9; line-height: 1.6; }
+.home-top::before {
+  content: ''; position: absolute; top: -40px; right: -30px;
+  width: 170px; height: 170px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(99,102,241,.30) 0%, rgba(99,102,241,0) 70%);
+  pointer-events: none;
+}
+.home-hero-deco {
+  position: absolute; top: 14px; right: 8px;
+  width: 130px; height: 80px; pointer-events: none;
+}
+.home-hero-deco svg { width: 100%; height: 100%; display: block; }
+.home-brand { position: relative; z-index: 1; font-size: 12px; font-weight: 700; opacity: .92; letter-spacing: .08em; }
+.home-title { position: relative; z-index: 1; font-size: 23px; font-weight: 800; line-height: 1.25; margin: 4px 0 6px; }
+.home-sub   { position: relative; z-index: 1; font-size: 12px; opacity: .92; line-height: 1.6; max-width: 92%; }
+.home-badges { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.home-badge {
+  font-size: 11px; font-weight: 700; color: #fff;
+  background: rgba(255,255,255,.18);
+  border: 1px solid rgba(255,255,255,.28);
+  border-radius: 999px; padding: 3px 11px;
+}
 
 .home-body { padding: 16px; }
 
 /* 今日の5問（主役） */
 .daily-hero {
+  position: relative;
+  overflow: hidden;
   background: var(--white);
   border: 1px solid var(--border);
   border-radius: var(--r);
@@ -76,6 +98,11 @@ html, body {
   box-shadow: var(--shadow);
   margin-bottom: 16px;
 }
+.daily-hero-target {
+  position: absolute; top: 8px; right: 12px;
+  font-size: 34px; line-height: 1; opacity: .10; pointer-events: none;
+}
+.daily-hero > *:not(.daily-hero-target) { position: relative; z-index: 1; }
 .daily-hero-label { font-size: 12px; font-weight: 700; color: var(--teal-700); }
 .daily-hero-title { font-size: 19px; font-weight: 800; color: var(--navy); margin: 4px 0 2px; }
 .daily-hero-sub   { font-size: 12px; color: var(--text-sub); margin-bottom: 14px; line-height: 1.6; }
@@ -104,6 +131,10 @@ html, body {
 .menu-stack { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
 .menu-stack .menu-btn { flex-direction: row; align-items: center; gap: 10px; }
 .menu-stack .menu-btn-icon { font-size: 18px; }
+.menu-stack .menu-btn::after {
+  content: '›'; margin-left: auto; color: var(--text-sub);
+  font-size: 18px; font-weight: 700; line-height: 1;
+}
 
 /* ── 統計ミニ ── */
 .home-stats { display: flex; gap: 8px; margin-bottom: 16px; }

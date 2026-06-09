@@ -1,7 +1,7 @@
 # TOEIC Reading Hub β v0.1
 
-英検2級前後の大学生を対象とした、**Reading特化**の TOEIC 学習アプリ（β）。
-目標スコア帯：**TOEIC 600〜730点**。
+**TOEIC 700点台から800点突破を狙う学習者**向けの、**Reading特化** TOEIC 学習アプリ（β）。
+鍛える力：**読む速度・正確性・言い換え対応力**（Speed / Accuracy / Paraphrase）。
 
 ## 方針
 - **Listening は実装しない**（Reading特化）。
