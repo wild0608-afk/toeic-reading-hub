@@ -238,12 +238,12 @@ function renderQuiz() {
   if (!Q || Q.questions.length === 0) {
     return `<div class="screen">${headerBar('演習')}
       <div class="empty"><div class="empty-icon">🗂️</div>
-      <div class="empty-msg">この条件の問題はまだありません。<br>問題データが追加されると、ここで演習できます。</div></div></div>`;
+      <div class="empty-msg">まだこの条件で出題できる問題がありません。<br>ホームの「今日の5問」や「分野別学習」から始めてみましょう。</div></div></div>`;
   }
   const q = Q.questions[Q.index];
   const answered = App.selected !== null;
   const pct = Math.round((Q.index / Q.questions.length) * 100);
-  const star = DB.bookmarks[q.id] ? '🔖' : '🔖';
+  const star = DB.bookmarks[q.id] ? '🔖 付箋済み' : '🔖 付箋';
   const starStyle = DB.bookmarks[q.id] ? '' : 'opacity:.3';
 
   const passageHtml = (q.part === 'Part 7 Reading' && q.passage) ? `
@@ -359,7 +359,7 @@ function renderStats() {
 function renderBookmarkList() {
   const ids = Object.keys(DB.bookmarks);
   if (ids.length === 0) {
-    return `<div class="screen">${headerBar('付箋')}<div class="empty"><div class="empty-icon">🔖</div><div class="empty-msg">付箋を付けた問題はまだありません。<br>演習中の 🔖 で付箋を付けられます。</div></div></div>`;
+    return `<div class="screen">${headerBar('付箋')}<div class="empty"><div class="empty-icon">🔖</div><div class="empty-msg">まだ付箋を付けた問題はありません。<br>演習中に「🔖 付箋」をタップすると、気になる問題をここにためておけます。</div></div></div>`;
   }
   return `<div class="screen">${headerBar('付箋')}<div class="body-pad">
     <div class="intro-line">付箋を付けた ${ids.length} 問をまとめて復習できます。</div>
