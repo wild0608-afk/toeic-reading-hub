@@ -189,7 +189,7 @@ function renderHome() {
         <button class="menu-btn" data-action="go-categories"><span class="menu-btn-icon">📚</span><span class="menu-btn-label">分野別学習</span><span class="menu-btn-sub">Part別に解く</span></button>
         <button class="menu-btn" data-action="start-random10"><span class="menu-btn-icon">🎲</span><span class="menu-btn-label">ランダム10問</span><span class="menu-btn-sub">横断練習</span></button>
         <button class="menu-btn" data-action="start-random20"><span class="menu-btn-icon">🎲</span><span class="menu-btn-label">ランダム20問</span><span class="menu-btn-sub">横断練習</span></button>
-        <button class="menu-btn" data-action="start-exam"><span class="menu-btn-icon">🏆</span><span class="menu-btn-label">ミニ模試20問</span><span class="menu-btn-sub">本番形式</span></button>
+        <button class="menu-btn" data-action="start-exam"><span class="menu-btn-icon">🏆</span><span class="menu-btn-label">20問まとめて演習</span><span class="menu-btn-sub">即時解説つき</span></button>
         <button class="menu-btn" data-action="start-review"><span class="menu-btn-icon">🔄</span><span class="menu-btn-label">間違い復習</span><span class="menu-btn-sub">${wrongCnt}問</span></button>
         <button class="menu-btn" data-action="go-bookmark"><span class="menu-btn-icon">🔖</span><span class="menu-btn-label">付箋</span><span class="menu-btn-sub">${Object.keys(DB.bookmarks).length}問</span></button>
       </div>
@@ -280,7 +280,7 @@ function renderQuiz() {
 
   return `
   <div class="screen">
-    ${headerBar(Q.mode === 'exam' ? 'ミニ模試' : '演習')}
+    ${headerBar(Q.mode === 'exam' ? '20問演習' : '演習')}
     <div class="quiz-body">
       <div class="quiz-progress">
         <span>${Q.index + 1} / ${Q.questions.length}</span>
@@ -418,7 +418,7 @@ function renderCourse() {
     { d: 'Day 4', t: '接続詞・前置詞・関係詞', read: '接続詞・前置詞マップ', solve: 'Part 5 / Part 6 を中心に', point: '後ろが文か名詞かで、接続詞か前置詞かを見分ける。' },
     { d: 'Day 5', t: 'Part 6 文脈読み', read: '言い換えマップ', solve: 'Part 6 Text Completion を中心に', point: '空所は1文だけでなく前後の流れで判断する。' },
     { d: 'Day 6', t: 'Part 7 メール・告知', read: '言い換えマップ', solve: 'Part 7 Reading を中心に', point: '設問→本文の順で読み、言い換えを探す。' },
-    { d: 'Day 7', t: '総点検', read: '間違い復習', solve: 'ミニ模試20問', point: '新しい知識より、間違えた理由をつぶすことを優先する。' },
+    { d: 'Day 7', t: '総点検', read: '間違い復習', solve: '20問まとめて演習', point: '新しい知識より、間違えた理由をつぶすことを優先する。' },
   ];
   const cards = days.map(x => `
     <div class="card">
