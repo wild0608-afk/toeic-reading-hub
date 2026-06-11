@@ -177,6 +177,14 @@ function renderHome() {
   const done = Object.keys(DB.answered).length;
   const rate = DB.attempts ? Math.round((DB.correctTotal / DB.attempts) * 100) : 0;
   const wrongCnt = Object.keys(DB.wrong).length;
+  const inProgress = App.quiz && App.quiz.questions.length > 0 && App.quiz.results.length < App.quiz.questions.length;
+  const resumeHtml = inProgress ? `
+      <div class="daily-hero" style="border-color:var(--amber)">
+        <div class="daily-hero-label" style="color:var(--amber)">⏯️ 学習中</div>
+        <div class="daily-hero-title">続きから解く</div>
+        <div class="daily-hero-sub">${App.quiz.results.length} / ${App.quiz.questions.length} 問まで進んでいます。中断したところから再開できます。</div>
+        <button class="daily-hero-btn" style="background:var(--amber)" data-action="resume-quiz">続きから</button>
+      </div>` : '';
 
   return `
   <div class="screen">
@@ -200,6 +208,7 @@ function renderHome() {
       </div>
     </div>
     <div class="home-body">
+      ${resumeHtml}
       <div class="daily-hero">
         <span class="daily-hero-target" aria-hidden="true">🎯</span>
         <div class="daily-hero-label">🌟 今日の学習</div>
@@ -351,6 +360,9 @@ function renderResult() {
       <div class="result-card">
         <div class="card-title">次にやること</div>
         <div class="card-body">${nextTip}</div>
+      </div>
+      <div class="quiz-actions">
+        <button class="btn-primary" data-action="restart-quiz">この問題をもう一度（最初から）</button>
       </div>
       <div class="quiz-actions">
         <button class="btn-ghost" data-action="go-home">ホームへ</button>
@@ -556,6 +568,13 @@ document.addEventListener('click', e => {
     case 'start-bookmark':   startQuiz('bookmark'); break;
     case 'start-category':   startQuiz('category', el.dataset.part); break;
     case 'start-skill-drill': startQuiz('skill', el.dataset.view); break;
+    case 'restart-quiz': {
+      const Q = App.quiz;
+      if (Q && Q.questions.length) { Q.index = 0; Q.results = []; App.selected = null; go('quiz'); }
+      else go('home');
+      break;
+    }
+    case 'resume-quiz': { if (App.quiz && App.quiz.questions.length) go('quiz'); else go('home'); break; }
 
     case 'answer': {
       if (App.selected !== null) break;
