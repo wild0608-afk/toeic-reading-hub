@@ -185,6 +185,12 @@ function renderHome() {
         <div class="daily-hero-sub">${App.quiz.results.length} / ${App.quiz.questions.length} 問まで進んでいます。中断したところから再開できます。</div>
         <button class="daily-hero-btn" style="background:var(--amber)" data-action="resume-quiz">続きから</button>
       </div>` : '';
+  const recHtml = wrongCnt > 0 ? `
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-title">📌 今のおすすめ</div>
+        <div class="card-body">苦手な問題が ${wrongCnt} 問たまっています。「間違い復習」で解き直すと、弱点が定着します。</div>
+        <button class="btn-primary" style="margin-top:10px" data-action="start-review">間違い復習を始める（${wrongCnt}問）</button>
+      </div>` : '';
 
   return `
   <div class="screen">
@@ -223,6 +229,7 @@ function renderHome() {
         <div class="home-stat"><div class="home-stat-val">${DB.streak || 0}</div><div class="home-stat-lbl">連続日数</div></div>
       </div>
 
+      ${recHtml}
       <div class="section-label">演習メニュー</div>
       <div class="menu-grid">
         <button class="menu-btn" data-action="go-categories"><span class="menu-btn-icon">📚</span><span class="menu-btn-label">分野別学習</span><span class="menu-btn-sub">Part別に解く</span></button>
