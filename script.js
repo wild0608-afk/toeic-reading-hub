@@ -24,6 +24,19 @@ const PART_SUB = {
   'Part 7 Reading': '読解',
 };
 
+// ── Reading Map（弱点マップ）の観点定義 ─────────────────────────────────
+// 観点 → skill に含まれるキーワード（部分一致）。renderReadingMap と pickSkillDrill が共用する。
+const READING_VIEWS = [
+  { tag: 'Vocabulary in Context', title: '文脈語彙力', desc: '空所や本文に合う語を、意味とコロケーションで選ぶ力。', keys: ['語彙', 'ビジネス動詞', 'ビジネス名詞', 'コロケーション', '文脈語彙', '文脈動詞', '文脈名詞', '紛らわしい', '句動詞', '形容詞（', '副詞（'] },
+  { tag: 'Connector', title: '接続・論理の流れ', desc: '接続詞・接続副詞で文と文のつながり（順接・逆接・因果）をつかむ。', keys: ['接続', '相関接続', '対比'] },
+  { tag: 'Grammar Accuracy', title: '文法の正確さ', desc: '時制・態・分詞・関係詞・比較・仮定法・前置詞などを素早く正確に判断する。', keys: ['時制', '完了形', '受動態', '分詞', '関係詞', '比較', '仮定法', '品詞', '倒置', '一致', '語法', '前置詞（'] },
+  { tag: 'Part 6 Flow', title: 'Part 6 文脈・文選択', desc: '空所を1文だけでなく前後の流れで判断し、最適な一文を選ぶ。', keys: ['文挿入', '指示語', '代名詞', 'Part 6'] },
+  { tag: 'Purpose', title: 'Part 7 目的・主旨', desc: '文書全体が何のために書かれたかをつかむ。', keys: ['目的把握'] },
+  { tag: 'Detail', title: 'Part 7 詳細・依頼', desc: '日時・条件・依頼など、本文の具体情報を正確に読み取る。', keys: ['詳細把握', '依頼内容把握', '理由・原因把握'] },
+  { tag: 'Paraphrase', title: '言い換え対応', desc: '正解選択肢は本文の言い換え。同義表現を見抜く。', keys: ['言い換え', '同義表現'] },
+  { tag: 'Inference', title: '推論', desc: '本文に直接書かれていない含意を、根拠から論理的に推測する。', keys: ['推論', '含意', '推測'] },
+];
+
 // ── localStorage ────────────────────────────────────────────────────────
 const STORE_KEY = 'toeic_reading_hub_v1';
 
@@ -98,6 +111,7 @@ function startQuiz(mode, part) {
 
   let n = pool.length;
   if (mode === 'daily') { pool = pickDaily(); n = pool.length; }
+  else if (mode === 'skill') { pool = pickSkillDrill(part); n = pool.length; }
   else if (mode === 'random10') n = Math.min(10, pool.length);
   else if (mode === 'random20') n = Math.min(20, pool.length);
   else if (mode === 'exam') n = Math.min(20, pool.length);
@@ -117,6 +131,21 @@ function pickDaily() {
   const rest = shuffle(QUESTIONS.slice());
   const out = []; const seen = {};
   for (const list of [undone, wrong, rest]) {
+    for (const q of list) { if (out.length >= 5) break; if (!seen[q.id]) { seen[q.id] = 1; out.push(q); } }
+  }
+  return out;
+}
+
+function pickSkillDrill(tag) {
+  // Reading Map の観点別練習：間違えた問題 → 未学習 → その他 の順で最大5問
+  const view = READING_VIEWS.find(v => v.tag === tag);
+  if (!view) return [];
+  const pool = QUESTIONS.filter(q => view.keys.some(k => (q.skill || '').includes(k)));
+  const wrong = shuffle(pool.filter(q => DB.wrong[q.id]));
+  const undone = shuffle(pool.filter(q => !DB.answered[q.id] && !DB.wrong[q.id]));
+  const rest = shuffle(pool.slice());
+  const out = []; const seen = {};
+  for (const list of [wrong, undone, rest]) {
     for (const q of list) { if (out.length >= 5) break; if (!seen[q.id]) { seen[q.id] = 1; out.push(q); } }
   }
   return out;
@@ -282,7 +311,7 @@ function renderQuiz() {
 
   return `
   <div class="screen">
-    ${headerBar(Q.mode === 'exam' ? '20問演習' : '演習')}
+    ${headerBar(Q.mode === 'exam' ? '20問演習' : Q.mode === 'skill' ? '弱点練習' : '演習')}
     <div class="quiz-body">
       <div class="quiz-progress">
         <span>${Q.index + 1} / ${Q.questions.length}</span>
@@ -412,24 +441,12 @@ function mapScreen(title, intro, data) {
 }
 
 // ── Reading Map（弱点マップ） ──────────────────────────────────────────
-// 700→800 の読解観点を、各問の skill とゆるく対応づけて学習状況・弱点を表示する。
-// localStorage 構造は変更しない（既存の DB.answered / DB.wrong を読むだけ）。
+// 700→800 の読解観点を、各問の skill とゆるく対応づけて学習状況・弱点を表示し、観点別の5問練習を開始できる。
+// 観点定義はファイル上部の READING_VIEWS を共用。localStorage 構造は変更しない（既存の DB.answered / DB.wrong を読むだけ）。
 function renderReadingMap() {
-  // 観点 → skill に含まれるキーワード（部分一致）
-  const views = [
-    { tag: 'Vocabulary in Context', title: '文脈語彙力', desc: '空所や本文に合う語を、意味とコロケーションで選ぶ力。', keys: ['語彙', 'ビジネス動詞', 'ビジネス名詞', 'コロケーション', '文脈語彙', '文脈動詞', '文脈名詞', '紛らわしい', '句動詞', '形容詞（', '副詞（'] },
-    { tag: 'Connector', title: '接続・論理の流れ', desc: '接続詞・接続副詞で文と文のつながり（順接・逆接・因果）をつかむ。', keys: ['接続', '相関接続', '対比'] },
-    { tag: 'Grammar Accuracy', title: '文法の正確さ', desc: '時制・態・分詞・関係詞・比較・仮定法・前置詞などを素早く正確に判断する。', keys: ['時制', '完了形', '受動態', '分詞', '関係詞', '比較', '仮定法', '品詞', '倒置', '一致', '語法', '前置詞（'] },
-    { tag: 'Part 6 Flow', title: 'Part 6 文脈・文選択', desc: '空所を1文だけでなく前後の流れで判断し、最適な一文を選ぶ。', keys: ['文挿入', '指示語', '代名詞', 'Part 6'] },
-    { tag: 'Purpose', title: 'Part 7 目的・主旨', desc: '文書全体が何のために書かれたかをつかむ。', keys: ['目的把握'] },
-    { tag: 'Detail', title: 'Part 7 詳細・依頼', desc: '日時・条件・依頼など、本文の具体情報を正確に読み取る。', keys: ['詳細把握', '依頼内容把握', '理由・原因把握'] },
-    { tag: 'Paraphrase', title: '言い換え対応', desc: '正解選択肢は本文の言い換え。同義表現を見抜く。', keys: ['言い換え', '同義表現'] },
-    { tag: 'Inference', title: '推論', desc: '本文に直接書かれていない含意を、根拠から論理的に推測する。', keys: ['推論', '含意', '推測'] },
-  ];
+  const matched = q => READING_VIEWS.find(v => v.keys.some(k => (q.skill || '').includes(k)));
 
-  const matched = q => views.find(v => v.keys.some(k => (q.skill || '').includes(k)));
-
-  const cards = views.map(v => {
+  const cards = READING_VIEWS.map(v => {
     const qs = QUESTIONS.filter(q => v.keys.some(k => (q.skill || '').includes(k)));
     const total = qs.length;
     const done = qs.filter(q => DB.answered[q.id]).length;
@@ -445,6 +462,7 @@ function renderReadingMap() {
         <div class="bar-row-top"><span class="bar-row-name">学習状況</span><span class="bar-row-val">${done}/${total}問</span></div>
         <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
       </div>
+      ${total > 0 ? `<button class="btn-primary" style="margin-top:10px;width:100%" data-action="start-skill-drill" data-view="${escapeHTML(v.tag)}">この弱点を5問練習${weak > 0 ? '（要復習を優先して出題）' : ''}</button>` : ''}
     </div>`;
   }).join('');
 
@@ -533,6 +551,7 @@ document.addEventListener('click', e => {
     case 'start-review':     startQuiz('review'); break;
     case 'start-bookmark':   startQuiz('bookmark'); break;
     case 'start-category':   startQuiz('category', el.dataset.part); break;
+    case 'start-skill-drill': startQuiz('skill', el.dataset.view); break;
 
     case 'answer': {
       if (App.selected !== null) break;
