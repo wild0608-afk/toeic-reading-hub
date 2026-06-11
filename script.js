@@ -338,6 +338,10 @@ function renderResult() {
   else if (pct >= 60) msg = '合格ラインの感触。間違えた問題を復習しよう。';
   else if (total > 0) msg = '解説と和訳を読み直して、根拠を固めましょう。';
 
+  let nextTip = '間違えた問題は「間違い復習」でもう一度。語彙は「言い換えマップ」、文法は「品詞マップ」で確認すると定着します。';
+  if (Q.mode === 'skill') nextTip = 'この弱点で間違えた問題は、解説とポイントを読み直してからもう一度。「間違い復習」で同じ観点を反復すると、700→800で差がつく弱点が埋まります。';
+  else if (Q.mode === 'review') nextTip = '間違い復習で再び間違えた問題は、解説の根拠を確認し、数日後にもう一度解くと記憶に定着します。';
+
   return `
   <div class="screen">
     ${headerBar('結果')}
@@ -346,7 +350,7 @@ function renderResult() {
       <div class="result-msg">${escapeHTML(msg)}（正答率 ${pct}%）</div>
       <div class="result-card">
         <div class="card-title">次にやること</div>
-        <div class="card-body">間違えた問題は「間違い復習」でもう一度。語彙は「言い換えマップ」、文法は「品詞マップ」で確認すると定着します。</div>
+        <div class="card-body">${nextTip}</div>
       </div>
       <div class="quiz-actions">
         <button class="btn-ghost" data-action="go-home">ホームへ</button>
